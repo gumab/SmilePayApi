@@ -4,7 +4,7 @@
 'use strict';
 
 // config/database.js
-var host = 'mysql01';
+var host = 'mysql';
 if (process.env.NODE_ENV !== 'production') {
     host = 'chabae01.japaneast.cloudapp.azure.com';
 }

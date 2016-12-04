@@ -6,6 +6,8 @@ var config = require('../../config');
 var router = require('express').Router();
 var userDac = require('../../dac/userDac');
 var partnerDac = require('../../dac/partnerDac');
+var beaconDac = require('../../dac/beaconDac');
+var payDac = require('../../dac/payDac');
 var async = require('async');
 
 router.get('/test', function (req, res) {
@@ -17,13 +19,13 @@ router.get('/user', function (req, res) {
     if (!!id) {
         userDac.selectUser(id, function (err, data) {
             if (!err) {
-                res.json(data);
+                res.json(getApiResult(data));
             } else {
-                res.json(err);
+                res.json(getApiResult(err, '900'));
             }
         })
     } else {
-        res.json(null);
+        res.json(getApiResult(null, '200'));
     }
 });
 
@@ -35,9 +37,9 @@ router.get('/partner', function (req, res) {
                     partnerDac.selectPartner(id, callback);
                 },
                 function (partnerInfo, callback) {
-                    if(partnerInfo){
-                        partnerDac.selectBeacon(partnerInfo.PartnerNo, function (err, beaconInfo) {
-                            if(err || !beaconInfo){
+                    if (partnerInfo) {
+                        beaconDac.selectBeacon(partnerInfo.PartnerNo, function (err, beaconInfo) {
+                            if (err || !beaconInfo) {
                                 callback(err);
                             } else {
                                 partnerInfo.beacon = beaconInfo;
@@ -49,11 +51,11 @@ router.get('/partner', function (req, res) {
                     }
                 },
                 function (partnerInfo, callback) {
-                    partnerDac.selectUUID(function (err, uuid) {
-                        if(err){
+                    beaconDac.selectUUID(function (err, uuid) {
+                        if (err) {
                             callback(err);
                         } else {
-                            partnerInfo.beacon.UUID=uuid;
+                            partnerInfo.beacon.UUID = uuid;
                             callback(null, partnerInfo);
                         }
                     })
@@ -61,9 +63,9 @@ router.get('/partner', function (req, res) {
             ],
             function (err, partnerInfo) {
                 if (err) {
-                    res.json(null);
+                    res.json(getApiResult(null, '200'));
                 } else {
-                    res.json(partnerInfo);
+                    res.json(getApiResult(partnerInfo));
                 }
             }
         );
@@ -76,8 +78,60 @@ router.get('/findbeacon', function (req, res) {
     var userNo = req.query.userno;
     var major = req.query.major;
     var minor = req.query.minor;
+    var distance = req.query.distance;
 
-    res.status=200;
+    if (!!userNo && !!major && !!minor && !!distance)
+        async.waterfall([
+            function (callback) {
+                beaconDac.selectBeaconNoByCode(major, minor, callback);
+            },
+            function (beaconNo, callback) {
+                beaconDac.insertActiveBeacon(userNo, beaconNo, distance, callback);
+            }
+        ], function (err) {
+            if (err) {
+                res.json(getApiResult(null, '100'));
+            } else {
+                res.json(getApiResult());
+            }
+        });
 });
+
+router.get('/nearuser', function (req, res) {
+    var partnerNo = req.query.partnerno;
+    var interval = req.query.interval || 60;
+    if (!!partnerNo) {
+        beaconDac.selectNearUser(partnerNo, interval, function (err, data) {
+            if (err) {
+                res.json(getApiResult(err, '900'));
+            } else {
+                res.json(getApiResult(data));
+            }
+        });
+    }
+})
+
+router.get('/payrequest', function (req, res) {
+    var partnerNo = req.query.partnerno;
+    var targetUserNo = req.query.targetno;
+    var reqMoney = req.query.money;
+    if (!!partnerNo && !!targetUserNo && !!reqMoney) {
+        payDac.insertPayRequest(partnerNo, targetUserNo, reqMoney, function (err, seq) {
+            if (err) {
+                res.json(getApiResult(err, '900'));
+            } else {
+                res.json(getApiResult({reqSeq: seq}));
+            }
+        })
+    }
+})
+
+function getApiResult(data, code) {
+    var result = {
+        ResultCode: code ? code : '000',
+        Data: data
+    };
+    return result
+}
 
 module.exports = router;
