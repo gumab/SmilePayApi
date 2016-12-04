@@ -18,6 +18,8 @@
   },
   "homepage": "https://gitlab.com/gumab/SmilePayApi#README",
   "dependencies": {
-    "express": "^4.14.0"
+    "async": "^2.1.4",
+    "express": "^4.14.0",
+    "mysql": "^2.12.0"
   }
 }
