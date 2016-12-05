@@ -64,14 +64,14 @@ router.get('/partner', function (req, res) {
       ],
       function (err, partnerInfo) {
         if (err) {
-          res.json(getApiResult(null, '200'));
+          res.json(getApiResult(null, '900'));
         } else {
           res.json(getApiResult(partnerInfo));
         }
       }
     );
   } else {
-    res.json(null);
+    res.json(getApiResult(null, '200'));
   }
 });
 
@@ -81,7 +81,7 @@ router.get('/findbeacon', function (req, res) {
   var minor = req.query.minor;
   var distance = req.query.distance;
 
-  if (!!userNo && !!major && !!minor && !!distance)
+  if (!!userNo && !!major && !!minor && !!distance) {
     async.waterfall([
       function (callback) {
         beaconDac.selectBeaconNoByCode(major, minor, callback);
@@ -91,11 +91,14 @@ router.get('/findbeacon', function (req, res) {
       }
     ], function (err) {
       if (err) {
-        res.json(getApiResult(null, '100'));
+        res.json(getApiResult(null, '900'));
       } else {
         res.json(getApiResult());
       }
     });
+  } else {
+    res.json(getApiResult(null, '200'));
+  }
 });
 
 router.get('/nearuser', function (req, res) {
@@ -109,6 +112,8 @@ router.get('/nearuser', function (req, res) {
         res.json(getApiResult(data));
       }
     });
+  } else {
+    res.json(getApiResult(null, '200'));
   }
 });
 
@@ -142,6 +147,8 @@ router.get('/payrequest', function (req, res) {
         res.json(getApiResult({ reqSeq: result }));
       }
     });
+  } else {
+    res.json(getApiResult(null, '200'));
   }
 });
 
