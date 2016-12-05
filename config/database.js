@@ -6,15 +6,15 @@
 // config/database.js
 var host = 'mysql';
 if (process.env.NODE_ENV !== 'production') {
-    host = 'chabae01.japaneast.cloudapp.azure.com';
+  host = 'chabae01.japaneast.cloudapp.azure.com';
 }
 
 module.exports = {
-    mysql: {
-        host: host,
-        port: 3306,
-        user: 'spay',
-        password: 'spay1!',
-        database: 'spaydb'
-    }
+  mysql: {
+    host: host,
+    port: 3306,
+    user: 'spay',
+    password: 'spay1!',
+    database: 'spaydb'
+  }
 };

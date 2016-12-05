@@ -10,9 +10,9 @@
 // define the schema for our user model
 
 function BeaconT(partnerNo, major, minor) {
-    this.PartnerNo = partnerNo;
-    this.Major = major;
-    this.Minor = minor;
+  this.PartnerNo = partnerNo;
+  this.Major = major;
+  this.Minor = minor;
 }
 
 // create the model for users and expose it to our app
