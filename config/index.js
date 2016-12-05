@@ -17,5 +17,7 @@ module.exports = {
   webServer: {
     ip: ip,
     port: port
-  }
+  },
+  daemonInterval:500,
+  payRequestAvailableTime:60000
 };

@@ -9,6 +9,7 @@ var partnerDac = require('../../dac/partnerDac');
 var beaconDac = require('../../dac/beaconDac');
 var payDac = require('../../dac/payDac');
 var async = require('async');
+var enums = require('../../entity/Enums');
 
 router.get('/test', function (req, res) {
   res.json({ value: 'test' });
@@ -109,28 +110,50 @@ router.get('/nearuser', function (req, res) {
       }
     });
   }
-})
+});
 
 router.get('/payrequest', function (req, res) {
   var partnerNo = req.query.partnerno;
   var targetUserNo = req.query.targetno;
   var reqMoney = req.query.money;
   if (!!partnerNo && !!targetUserNo && !!reqMoney) {
-    payDac.insertPayRequest(partnerNo, targetUserNo, reqMoney, function (err, seq) {
+    async.waterfall([
+      function (callback) {
+        payDac.selectPayRequest({
+          TargetUserNo: targetUserNo,
+          Status: enums.EnumPayRequestStatus.Wait
+        }, function (err, result) {
+          if (err || (result && result.length > 0)) {
+            callback({ ErrCode: '300', Message: 'duplicate request' });
+          } else {
+            callback();
+          }
+        })
+      },
+      function (callback) {
+        payDac.insertPayRequest(partnerNo, targetUserNo, reqMoney, function (err, seq) {
+          callback(err, seq);
+        });
+      }
+    ], function (err, result) {
       if (err) {
         res.json(getApiResult(err, '900'));
       } else {
-        res.json(getApiResult({ reqSeq: seq }));
+        res.json(getApiResult({ reqSeq: result }));
       }
-    })
+    });
   }
-})
+});
 
 function getApiResult(data, code) {
   var result = {
     ResultCode: code ? code : '000',
     Data: data
   };
+  if (data && data.ErrCode) {
+    result.ResultCode = data.ErrCode;
+    result.Data = data.Message;
+  }
   return result
 }
 

@@ -23,5 +23,85 @@ module.exports = {
         callback(null, result.insertId);
       }
     })
+  },
+
+  selectPayRequest: function (entity, callback) {
+    var queryString = 'select SEQ,PARTNER_NO,TARGET_USER_NO,REQ_MONEY,STATUS,PUSH_SENT_YN,COMMENT,REQ_DT ' +
+      'from PAY_REQUEST ';
+
+    if (entity) {
+      queryString += 'where ';
+      var query = [];
+      if (entity.PartnerNo) {
+        query.push('PARTNER_NO=' + entity.PartnerNo);
+      }
+      if (entity.TargetUserNo) {
+        query.push('TARGET_USER_NO=' + entity.TargetUserNo);
+      }
+      if (entity.Status) {
+        query.push('STATUS=\'' + entity.Status + '\'');
+      }
+      queryString += query.join(' and ');
+    }
+
+    connection.query(queryString, function (err, result) {
+      if (err) {
+        callback(err);
+      } else {
+        var clientResult = result.map(function (item) {
+          return {
+            RequestSeq: item.SEQ,
+            PartnerNo: item.PARTNER_NO,
+            TargetUserNo: item.TARGET_USER_NO,
+            RequestMoney: item.REQ_MONEY,
+            Status: item.STATUS,
+            IsPushSent: ((item.PUSH_SENT_YN && item.PUSH_SENT_YN === 'Y') ? true : false),
+            Comment: item.COMMENT,
+            RequestDate: new Date(item.REQ_DT)
+          }
+        })
+        callback(null, clientResult)
+      }
+    })
+  },
+
+  updatePayRequest: function (entity, callback) {
+
+    if (entity && entity.RequestSeq) {
+      //var query = 'update PAY_REQUEST set ';
+      var query = [];
+      if (entity.Status) {
+        query.push('STATUS=\'' + entity.Status+'\'');
+      }
+      if (entity.Comment) {
+        query.push('COMMENT=\'' + entity.Comment+'\'');
+      }
+      if (entity.IsPushSent) {
+        query.push('PUSH_SENT_YN=\'Y\'');
+      }
+
+      var queryString = 'update PAY_REQUEST set ' + query.join(', ') + ' where SEQ=' + entity.RequestSeq;
+
+      connection.query(queryString,
+        function (err, result) {
+          if (err) {
+            callback(err);
+          } else {
+            callback();
+          }
+        });
+    } else {
+      callback('no request');
+    }
+  },
+
+  selectNow: function (callback) {
+    connection.query('select now() as NOW', function (err, result) {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, result[0].NOW);
+      }
+    })
   }
 }
