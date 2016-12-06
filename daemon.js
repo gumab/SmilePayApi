@@ -41,9 +41,9 @@ function pushDaemon(callback) {
           return function (callback) {
             if (!item.IsPushSent) {
               pushService.sendPayRequestPush(item, function (err) {
-                if(err){
+                if (err) {
                   callback(err);
-                }else {
+                } else {
                   item.IsPushSent = true;
                   payDac.updatePayRequest(item, function (err) {
                     callback(err);

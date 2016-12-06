@@ -32,6 +32,9 @@ module.exports = {
     if (entity) {
       queryString += 'where ';
       var query = [];
+      if (entity.RequestSeq) {
+        query.push('SEQ=' + entity.RequestSeq);
+      }
       if (entity.PartnerNo) {
         query.push('PARTNER_NO=' + entity.PartnerNo);
       }
@@ -71,10 +74,10 @@ module.exports = {
       //var query = 'update PAY_REQUEST set ';
       var query = [];
       if (entity.Status) {
-        query.push('STATUS=\'' + entity.Status+'\'');
+        query.push('STATUS=\'' + entity.Status + '\'');
       }
       if (entity.Comment) {
-        query.push('COMMENT=\'' + entity.Comment+'\'');
+        query.push('COMMENT=\'' + entity.Comment + '\'');
       }
       if (entity.IsPushSent) {
         query.push('PUSH_SENT_YN=\'Y\'');

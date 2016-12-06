@@ -121,6 +121,8 @@ router.get('/payrequest', function (req, res) {
   var partnerNo = req.query.partnerno;
   var targetUserNo = req.query.targetno;
   var reqMoney = req.query.money;
+  var userNo = req.query.userno;
+  var requestSeq = req.query.seq;
   if (!!partnerNo && !!targetUserNo && !!reqMoney) {
     async.waterfall([
       function (callback) {
@@ -144,11 +146,76 @@ router.get('/payrequest', function (req, res) {
       if (err) {
         res.json(getApiResult(err, '900'));
       } else {
-        res.json(getApiResult({ reqSeq: result }));
+        res.json(getApiResult({ RequestSeq: result }));
+      }
+    });
+  } else if (!!userNo) {
+    payDac.selectPayRequest({
+      TargetUserNo: targetUserNo,
+      Status: enums.EnumPayRequestStatus.Wait
+    }, function (err, data) {
+      if (err) {
+        res.json(getApiResult(err, '900'));
+      } else {
+        res.json(getApiResult(data));
       }
     });
   } else {
     res.json(getApiResult(null, '200'));
+  }
+});
+
+router.get('/setpay', function (req, res) {
+  var requestSeq = req.query.seq;
+  var isPay = req.query.ispay;
+  var isPartner = req.query.ispartner;
+  if (!!requestSeq) {
+    async.waterfall([
+      function (callback) {
+        payDac.selectPayRequest({
+          RequestSeq: requestSeq,
+          Status: enums.EnumPayRequestStatus.Wait
+        }, function (err, data) {
+          if (err || (data && data.length != 1)) {
+            callback('not available to pay');
+          } else {
+            callback();
+          }
+        })
+      }, function (callback) {
+        if (!!isPay) {
+          payDac.updatePayRequest({
+            RequestSeq: requestSeq,
+            Status: enums.EnumPayRequestStatus.PayComplete,
+            Comment: '결제성공'
+          }, callback);
+        } else {
+          if (!!isPartner) {
+            payDac.updatePayRequest({
+              RequestSeq: requestSeq,
+              Status: enums.EnumPayRequestStatus.CancelPartner,
+              Comment: '가맹점 결제요청 취소'
+            }, callback);
+          } else {
+            payDac.updatePayRequest({
+              RequestSeq: requestSeq,
+              Status: enums.EnumPayRequestStatus.CancelUser,
+              Comment: '사용자 결제 취소'
+            }, callback);
+          }
+        }
+      }
+    ], function (err) {
+      if (err) {
+        res.json(getApiResult(err, '900'));
+      } else {
+        res.json(getApiResult({ RequestSeq: requestSeq }));
+      }
+    })
+
+
+  } else {
+    res.json(getApiResult(null, '900'));
   }
 });
 
