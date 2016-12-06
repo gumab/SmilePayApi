@@ -157,9 +157,23 @@ router.get('/payrequest', function (req, res) {
       if (err) {
         res.json(getApiResult(err, '900'));
       } else {
-        res.json(getApiResult(data));
+        if (data && data.length === 1) {
+          res.json(getApiResult(data[0]));
+        } else {
+          res.json((getApiResult()));
+        }
       }
     });
+  } else if (!!requestSeq) {
+    payDac.selectPayRequest({
+      RequestSeq: requestSeq
+    }, function (err, data) {
+      if (!err && data && data.length === 1) {
+        res.json(getApiResult(data[0]));
+      } else {
+        res.json(getApiResult(err, '900'));
+      }
+    })
   } else {
     res.json(getApiResult(null, '200'));
   }
