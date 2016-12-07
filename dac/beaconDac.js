@@ -76,11 +76,11 @@ module.exports = {
   selectNearUser: function (partnerNo, interval, callback) {
     connection.query(
       'select c.USER_NO, c.USER_NM, c.HP_1, c.HP_3, a.DISTANCE from ACTIVE_BEACON a ' +
-      'join (select USER_NO, MAX(REG_DT) as REG_DT from ACTIVE_BEACON ab ' +
+      'join (select USER_NO, MAX(SEQ) as SEQ from ACTIVE_BEACON ab ' +
       'join PARTNER_BEACON pb on ab.BEACON_NO=pb.BEACON_NO ' +
       'where pb.PARTNER_NO=' + mysql.escape(partnerNo) + ' ' +
       'and ab.REG_DT > DATE_SUB(NOW(), INTERVAL ' + mysql.escape(interval) + ' SECOND)' +
-      'group by `USER_NO`) b on a.USER_NO=b.USER_NO and a.REG_DT=b.REG_DT ' +
+      'group by `USER_NO`) b on a.USER_NO=b.USER_NO and a.SEQ=b.SEQ ' +
       'join USER c on a.USER_NO=c.USER_NO ' +
       'order by a.DISTANCE asc', function (err, result) {
         if (err) {
