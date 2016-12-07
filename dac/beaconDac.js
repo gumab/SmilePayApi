@@ -80,7 +80,7 @@ module.exports = {
       'join PARTNER_BEACON pb on ab.BEACON_NO=pb.BEACON_NO ' +
       'where pb.PARTNER_NO=' + mysql.escape(partnerNo) + ' ' +
       'and ab.REG_DT > DATE_SUB(NOW(), INTERVAL ' + mysql.escape(interval) + ' SECOND)' +
-      'group by `USER_NO`) b on a.USER_NO=b.USER_NO and a.REG_DT=b.REG_DT ' +
+      'group by `USER_NO`) b on a.USER_NO=b.USER_NO and a.REG_DT=b.REG_DT and a.DISTANCE=b.DISTANCE ' +
       'join USER c on a.USER_NO=c.USER_NO ' +
       'order by a.DISTANCE asc', function (err, result) {
         if (err) {
