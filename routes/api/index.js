@@ -151,7 +151,7 @@ router.get('/payrequest', function (req, res) {
     });
   } else if (!!userNo) {
     payDac.selectPayRequest({
-      TargetUserNo: targetUserNo,
+      TargetUserNo: userNo,
       Status: enums.EnumPayRequestStatus.Wait
     }, function (err, data) {
       if (err) {
