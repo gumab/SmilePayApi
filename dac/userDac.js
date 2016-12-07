@@ -57,9 +57,10 @@ module.exports = {
         callback(err)
       } else {
         if(result && result.length>0){
-          callback(null, result[0])
+          console.log(result[0]);
+          callback(null, result[0].DEVICE_TOKEN);
         } else {
-          callback('no token')
+          callback('no token');
         }
       }
     });

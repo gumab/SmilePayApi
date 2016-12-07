@@ -26,23 +26,24 @@ module.exports = {
   },
 
   selectPayRequest: function (entity, callback) {
-    var queryString = 'select SEQ,PARTNER_NO,TARGET_USER_NO,REQ_MONEY,STATUS,PUSH_SENT_YN,COMMENT,REQ_DT ' +
-      'from PAY_REQUEST ';
+    var queryString = 'select a.SEQ, a.PARTNER_NO, b.PARTNER_NM, a.TARGET_USER_NO, ' +
+      'a.REQ_MONEY, a.STATUS, a.PUSH_SENT_YN, a.COMMENT, a.REQ_DT ' +
+      'from PAY_REQUEST a join PARTNER b on a.PARTNER_NO=b.PARTNER_NO ';
 
     if (entity) {
       queryString += 'where ';
       var query = [];
       if (entity.RequestSeq) {
-        query.push('SEQ=' + entity.RequestSeq);
+        query.push('a.SEQ=' + entity.RequestSeq);
       }
       if (entity.PartnerNo) {
-        query.push('PARTNER_NO=' + entity.PartnerNo);
+        query.push('a.PARTNER_NO=' + entity.PartnerNo);
       }
       if (entity.TargetUserNo) {
-        query.push('TARGET_USER_NO=' + entity.TargetUserNo);
+        query.push('a.TARGET_USER_NO=' + entity.TargetUserNo);
       }
       if (entity.Status) {
-        query.push('STATUS=\'' + entity.Status + '\'');
+        query.push('a.STATUS=\'' + entity.Status + '\'');
       }
       queryString += query.join(' and ');
     }
@@ -55,6 +56,7 @@ module.exports = {
           return {
             RequestSeq: item.SEQ,
             PartnerNo: item.PARTNER_NO,
+            PartnerName: item.PARTNER_NM,
             TargetUserNo: item.TARGET_USER_NO,
             RequestMoney: item.REQ_MONEY,
             Status: item.STATUS,
