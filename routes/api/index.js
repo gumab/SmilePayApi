@@ -236,13 +236,17 @@ router.get('/setpay', function (req, res) {
 router.get('/setpushtoken', function (req, res) {
   var userNo = req.query.userno;
   var token = req.query.token;
-  if(!!userNo && !!token){
+  if(!!userNo){
     async.waterfall([
       function (callback) {
         userDac.deleteUserToken(userNo, token, callback)
       },
       function (callback) {
-        userDac.insertUserToken(userNo, token, callback)
+        if(!!token) {
+          userDac.insertUserToken(userNo, token, callback)
+        } else {
+          callback()
+        }
       }
     ], function (err) {
       if (err) {
