@@ -27,7 +27,7 @@ module.exports = {
 
   selectPayRequest: function (entity, callback) {
     var queryString = 'select a.SEQ, a.PARTNER_NO, b.PARTNER_NM, a.TARGET_USER_NO, ' +
-      'a.REQ_MONEY, a.STATUS, a.PUSH_SENT_YN, a.COMMENT, a.REQ_DT ' +
+      'a.REQ_MONEY, a.STATUS, a.PUSH_SENT_YN, a.COMMENT, a.REQ_DT, TIMESTAMPDIFF(SECOND, a.REQ_DT, NOW()) as EL_TIME ' +
       'from PAY_REQUEST a join PARTNER b on a.PARTNER_NO=b.PARTNER_NO ';
 
     if (entity) {
@@ -62,7 +62,8 @@ module.exports = {
             Status: item.STATUS,
             IsPushSent: ((item.PUSH_SENT_YN && item.PUSH_SENT_YN === 'Y') ? true : false),
             Comment: item.COMMENT,
-            RequestDate: new Date(item.REQ_DT)
+            RequestDate: new Date(item.REQ_DT),
+            ElapsedTime: item.EL_TIME
           }
         })
         callback(null, clientResult)

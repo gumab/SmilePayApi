@@ -160,7 +160,7 @@ router.get('/payrequest', function (req, res) {
         if (data && data.length === 1) {
           res.json(getApiResult(data[0]));
         } else {
-          res.json((getApiResult()));
+          res.json((getApiResult(null, '100')));
         }
       }
     });
