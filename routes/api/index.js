@@ -233,6 +233,30 @@ router.get('/setpay', function (req, res) {
   }
 });
 
+router.get('/setpushtoken', function (req, res) {
+  var userNo = req.query.userno;
+  var token = req.query.token;
+  if(!!userNo && !!token){
+    async.waterfall([
+      function (callback) {
+        userDac.deleteUserToken(userNo, token, callback)
+      },
+      function (callback) {
+        userDac.insertUserToken(userNo, token, callback)
+      }
+    ], function (err) {
+      if (err) {
+        res.json(getApiResult(err, '900'));
+      } else {
+        res.json(getApiResult());
+      }
+    })
+  } else {
+    res.json(getApiResult(null, '900'))
+  }
+
+});
+
 function getApiResult(data, code) {
   var result = {
     ResultCode: code ? code : '000',

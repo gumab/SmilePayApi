@@ -31,5 +31,37 @@ module.exports = {
         }
       }
     });
+  },
+
+  deleteUserToken: function (userNo, token, callback) {
+    connection.query('delete from USER_TOKEN where USER_NO=' + mysql.escape(userNo) +
+      ' or DEVICE_TOKEN=' + mysql.escape(token), function (err, result) {
+      callback(err)
+    });
+  },
+
+  insertUserToken: function (userNo, token, callback) {
+    var newRow = {
+      'USER_NO': userNo,
+      'DEVICE_TOKEN': token
+    };
+
+    connection.query('insert into USER_TOKEN set ?', newRow, function (err, result) {
+      callback(err)
+    })
+  },
+
+  selectUserToken: function (userNo, callback) {
+    connection.query('select DEVICE_TOKEN from USER_TOKEN where USER_NO='+mysql.escape(userNo), function (err, result) {
+      if(err){
+        callback(err)
+      } else {
+        if(result && result.length>0){
+          callback(null, result[0])
+        } else {
+          callback('no token')
+        }
+      }
+    });
   }
-}
+};
